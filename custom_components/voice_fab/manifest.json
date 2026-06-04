@@ -5,7 +5,7 @@
   "documentation": "https://github.com/your-repo/ha-voice-fab",
   "issue_tracker": "https://github.com/your-repo/ha-voice-fab/issues",
   "requirements": [],
-  "dependencies": [],
+  "dependencies": ["frontend"],
   "version": "1.0.0",
-  "config_flow": false
+  "config_flow": true
 }

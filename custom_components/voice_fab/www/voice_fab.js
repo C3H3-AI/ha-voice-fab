@@ -1,18 +1,28 @@
 /** Voice Fab - 全站悬浮语音助手按钮
- * 轻触: 打开 Assist + 自动隐藏
+ * 轻触: 打开 Assist + 按钮上移一行
  * 按住拖动: 移动位置
- * 长按不拖: 隐藏
- * 右上角小图标: 恢复显示
+ * 长按不拖: 隐藏按钮
+ * 关闭 Assist: 按钮回到默认位置
  */
 (function() {
     'use strict';
 
     const STORAGE_KEY_ENABLED = 'vf_enabled';
     const STORAGE_KEY_POS = 'vf_pos';
-    const DRAG_THRESHOLD = 8; // 超过8px才算拖动
+    const DRAG_THRESHOLD = 8;
+
+    // 默认位置：右下角
+    const DEFAULT_POS = { right: 24, bottom: 24 };
+    // Assist 打开时：右下角上一行
+    const ASSIST_POS = { right: 24, bottom: 80 };
 
     const STYLES = `
-        .vf-wrap{position:fixed;z-index:999999;user-select:none;-webkit-user-select:none;touch-action:none;}
+        .vf-wrap{
+            position:fixed;z-index:999999;
+            user-select:none;-webkit-user-select:none;touch-action:none;
+            transition:left 0.4s ease,top 0.4s ease,right 0.4s ease,bottom 0.4s ease;
+        }
+        .vf-wrap.no-transition{transition:none;}
         .vf-btn{
             width:56px;height:56px;border-radius:50%;
             background:linear-gradient(135deg,#6366f1,#8b5cf6);
@@ -24,9 +34,9 @@
         }
         .vf-btn:active{transform:scale(0.92);}
         .vf-btn.dragging{opacity:0.8;transform:scale(1.05);transition:none;}
-        .vf-btn.hiding{opacity:0;transform:scale(0.3) translateY(-40px);pointer-events:none;}
+        .vf-btn.hiding{opacity:0;transform:scale(0.3);pointer-events:none;}
         .vf-btn.showing{animation:vf-pop-in 0.3s ease-out;}
-        @keyframes vf-pop-in{0%{opacity:0;transform:scale(0.3) translateY(-20px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+        @keyframes vf-pop-in{0%{opacity:0;transform:scale(0.3);}100%{opacity:1;transform:scale(1);}}
         /* 右上角恢复小图标 */
         .vf-restore{
             position:fixed;top:60px;right:16px;z-index:999998;
@@ -41,6 +51,7 @@
 
     let wrap, btn, restoreBtn;
     let isHidden = localStorage.getItem(STORAGE_KEY_ENABLED) === 'false';
+    let isAssistOpen = false;
 
     // 指针状态
     let pointerId = null;
@@ -69,6 +80,32 @@
                 action: 'tap'
             }
         }));
+    }
+
+    function setDefaultPos() {
+        wrap.classList.remove('no-transition');
+        const pos = loadPos();
+        if (pos.x !== undefined && pos.y !== undefined) {
+            wrap.style.right = 'auto'; wrap.style.bottom = 'auto';
+            wrap.style.left = pos.x + 'px'; wrap.style.top = pos.y + 'px';
+        } else {
+            wrap.style.left = 'auto'; wrap.style.top = 'auto';
+            wrap.style.right = DEFAULT_POS.right + 'px';
+            wrap.style.bottom = DEFAULT_POS.bottom + 'px';
+        }
+    }
+
+    function moveToAssistPos() {
+        wrap.classList.remove('no-transition');
+        const pos = loadPos();
+        if (pos.x !== undefined && pos.y !== undefined) {
+            // 有自定义位置时，上移56px
+            wrap.style.top = (pos.y - 56) + 'px';
+        } else {
+            wrap.style.left = 'auto'; wrap.style.top = 'auto';
+            wrap.style.right = ASSIST_POS.right + 'px';
+            wrap.style.bottom = ASSIST_POS.bottom + 'px';
+        }
     }
 
     function hide(animate) {
@@ -129,6 +166,7 @@
             if (!isDragging) {
                 isDragging = true;
                 btn.classList.add('dragging');
+                wrap.classList.add('no-transition');
                 wrap.style.right = 'auto';
                 wrap.style.bottom = 'auto';
                 wrap.style.left = wrapStartX + 'px';
@@ -145,15 +183,17 @@
 
         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
         btn.classList.remove('dragging');
+        wrap.classList.remove('no-transition');
 
         if (isDragging) {
             // 拖动结束，保存位置
             const rect = wrap.getBoundingClientRect();
             savePos(rect.left, rect.top);
         } else if (!hasMoved && !isHidden) {
-            // 轻触：打开 Assist + 自动隐藏
+            // 轻触：打开 Assist + 上移一行
             openAssistDialog();
-            setTimeout(() => hide(true), 300);
+            isAssistOpen = true;
+            setTimeout(() => moveToAssistPos(), 100);
         }
 
         pointerId = null;
@@ -189,14 +229,8 @@
         restoreBtn.innerHTML = '🎤';
         document.body.appendChild(restoreBtn);
 
-        // 恢复位置
-        const pos = loadPos();
-        if (pos.x !== undefined && pos.y !== undefined) {
-            wrap.style.right = 'auto'; wrap.style.bottom = 'auto';
-            wrap.style.left = pos.x + 'px'; wrap.style.top = pos.y + 'px';
-        } else {
-            wrap.style.right = '24px'; wrap.style.bottom = '24px';
-        }
+        // 设置默认位置
+        setDefaultPos();
 
         // 初始隐藏状态
         if (isHidden) {
@@ -204,26 +238,33 @@
             restoreBtn.classList.add('show');
         }
 
-        // 指针事件（直接在按钮上，手机友好）
+        // 指针事件
         btn.addEventListener('pointerdown', onPointerDown);
         btn.addEventListener('pointermove', onPointerMove);
         btn.addEventListener('pointerup', onPointerUp);
         btn.addEventListener('pointercancel', onPointerUp);
 
         // 恢复按钮
-        restoreBtn.addEventListener('click', show);
+        restoreBtn.addEventListener('click', () => {
+            show();
+            setDefaultPos();
+        });
 
-        // 监听 Assist dialog 关闭事件，自动恢复按钮
+        // 监听 Assist dialog 关闭事件，按钮回到默认位置
         document.addEventListener('dialog-closed', (e) => {
             const detail = e.detail || {};
-            if (detail.dialog === 'ha-voice-command-dialog' && isHidden) {
-                show();
+            if (detail.dialog === 'ha-voice-command-dialog') {
+                if (isHidden) {
+                    show();
+                }
+                isAssistOpen = false;
+                setDefaultPos();
             }
         });
 
         // 全局事件
-        window.addEventListener('vf-toggle', () => isHidden ? show() : hide(true));
-        window.addEventListener('vf-show', show);
+        window.addEventListener('vf-toggle', () => isHidden ? (show(), setDefaultPos()) : hide(true));
+        window.addEventListener('vf-show', () => { show(); setDefaultPos(); });
         window.addEventListener('vf-hide', () => hide(true));
     }
 

@@ -1,0 +1,11 @@
+{
+  "domain": "voice_fab",
+  "name": "Voice FAB",
+  "codeowners": [],
+  "documentation": "https://github.com/your-repo/ha-voice-fab",
+  "issue_tracker": "https://github.com/your-repo/ha-voice-fab/issues",
+  "requirements": [],
+  "dependencies": [],
+  "version": "1.0.0",
+  "config_flow": false
+}

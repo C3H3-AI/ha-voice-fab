@@ -1,5 +1,7 @@
 # Voice FAB
 
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+
 Home Assistant 全站悬浮语音助手按钮。
 
 ## 功能
@@ -17,18 +19,18 @@ Home Assistant 全站悬浮语音助手按钮。
 
 1. 进入 HACS → 集成
 2. 点击右上角菜单 → 添加自定义仓库
-3. 填入仓库地址: `https://github.com/your-repo/ha-voice-fab`
+3. 填入仓库地址: `https://github.com/C3H3-AI/ha-voice-fab`
 4. 搜索 "Voice FAB" 安装
 
 ### 方法 2: 手动安装
 
 1. 下载本仓库
-2. 将 `voice_fab` 文件夹复制到 `custom_components/`
+2. 将 `custom_components/voice_fab` 文件夹复制到 Home Assistant 的 `custom_components/` 目录
 3. 重启 Home Assistant
 
 ## 使用
 
-安装后自动生效，无需配置。
+安装后在集成页面添加 "Voice FAB"，自动生效。
 
 ### 操作说明
 
@@ -44,15 +46,6 @@ Home Assistant 全站悬浮语音助手按钮。
 
 - Home Assistant 2024.1+
 - 已配置 Assist 语音助手
-
-## 配置
-
-可选，在 `configuration.yaml`:
-
-```yaml
-voice_fab:
-  enabled: true  # 默认 true，可设为 false 禁用
-```
 
 ## 更新日志
 

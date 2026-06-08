@@ -1,6 +1,7 @@
 {
   "domain": "voice_fab",
   "name": "Voice FAB",
+  "authors": ["@C3H3-AI"],
   "codeowners": ["@C3H3-AI"],
   "dependencies": ["frontend"],
   "requirements": [],

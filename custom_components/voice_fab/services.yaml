@@ -1,0 +1,11 @@
+set_fab_enabled:
+  name: Set FAB enabled
+  description: Enable or disable the floating voice assistant button across all HA pages.
+  fields:
+    enabled:
+      name: Enabled
+      description: Set to true to show the button, false to hide it.
+      example: true
+      default: true
+      selector:
+        boolean:

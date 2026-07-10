@@ -1,0 +1,14 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "语音助手悬浮按钮",
+        "description": "在 HA 所有页面添加一个可拖动的悬浮语音助手按钮。"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "只允许安装一个 Voice FAB 实例。",
+      "managed_by_claw_plus": "Voice FAB 已被 Claw Plus 集成接管，无需单独安装。请在 Claw Plus 面板中控制开关：对话风格 → 聊天体验 → 悬浮按钮。"
+    }
+  }
+}

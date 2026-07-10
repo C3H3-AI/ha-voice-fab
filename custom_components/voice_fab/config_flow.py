@@ -13,6 +13,15 @@ class VoiceFabConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
+        # 检测 claw_plus 是否已加载 → 提示无需安装
+        from homeassistant.config_entries import ConfigEntryState
+        cp_entries = self.hass.config_entries.async_entries("claw_plus")
+        if any(e.state is ConfigEntryState.LOADED for e in cp_entries):
+            return self.async_abort(
+                reason="managed_by_claw_plus",
+                description_placeholders={},
+            )
+
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
 

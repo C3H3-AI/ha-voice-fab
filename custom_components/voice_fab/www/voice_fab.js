@@ -48,7 +48,7 @@
     `;
 
     let wrap, btn, restoreBtn;
-    let isHidden = false;  // 每次刷新初始显示，隐藏状态不跨页面持久化
+    let isHidden = localStorage.getItem('vf_enabled') === 'false';
     let isAssistOpen = false;
 
     // 指针状态
@@ -109,6 +109,7 @@
 
     function hide(animate) {
         isHidden = true;
+        localStorage.setItem('vf_enabled', 'false');
         if (animate !== false) {
             btn.classList.add('hiding');
             setTimeout(() => { btn.style.display = 'none'; btn.classList.remove('hiding'); }, 300);
@@ -120,6 +121,7 @@
 
     function show() {
         isHidden = false;
+        localStorage.setItem('vf_enabled', 'true');
         btn.style.display = 'flex';
         btn.classList.add('showing');
         setTimeout(() => btn.classList.remove('showing'), 300);
@@ -250,6 +252,12 @@
 
         // 设置默认位置
         setDefaultPos();
+
+        // 初始隐藏状态（如果上次长按隐藏了）
+        if (isHidden) {
+            btn.style.display = 'none';
+            restoreBtn.classList.add('show');
+        }
 
         // 指针事件
         btn.addEventListener('pointerdown', onPointerDown);

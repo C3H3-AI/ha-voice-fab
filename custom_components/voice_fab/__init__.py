@@ -1,4 +1,4 @@
-"""Voice FAB - 全站悬浮语音助手按钮"""
+"""Voice FAB - Floating voice assistant button for all HA pages."""
 import logging
 from pathlib import Path
 
@@ -22,14 +22,14 @@ SERVICE_SET_FAB_SCHEMA = vol.Schema({
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """注册静态路径与 set_fab_enabled 服务。"""
+    """Register static path and set_fab_enabled service."""
 
     # 检测 claw_plus 是否已加载 → 它来接管（仍返回 True 保证安装成功）
     from homeassistant.config_entries import ConfigEntryState
     cp_entries = hass.config_entries.async_entries("claw_plus")
     vf_managed_by_cp = any(e.state is ConfigEntryState.LOADED for e in cp_entries)
     if vf_managed_by_cp:
-        _LOGGER.info("Voice FAB 已被 Claw Plus 接管，JS 注入由 Claw Plus 面板管理。")
+        _LOGGER.info("Voice FAB is managed by Claw Plus — JS injection controlled by Claw Plus panel.")
 
     hass.data.setdefault(DOMAIN, {})
 
@@ -65,7 +65,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """卸载时移除 JS 注入"""
+    """Unload: remove JS injection"""
     if hass.data[DOMAIN].get(_VFAB_DATA):
         frontend.remove_extra_js_url(hass, _VFAB_URL)
         hass.data[DOMAIN].pop(_VFAB_DATA, None)

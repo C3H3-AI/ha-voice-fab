@@ -8,7 +8,19 @@
     },
     "abort": {
       "single_instance_allowed": "Only one instance of Voice FAB is allowed.",
-      "managed_by_claw_plus": "Voice FAB is already managed by the Claw Plus integration. No need to install this separately. Please enable/disable the floating button in the Claw Plus panel: 对话风格 → 聊天体验 → 悬浮按钮."
+      "managed_by_claw_plus": "Voice FAB is already managed by the Claw Plus integration — no need to install it separately. Please enable/disable the floating button from the Claw Plus panel: Conversation Settings → Chat Experience → Floating Button."
+    }
+  },
+  "services": {
+    "set_fab_enabled": {
+      "name": "Set FAB enabled",
+      "description": "Enable or disable the floating voice assistant button across all HA pages.",
+      "fields": {
+        "enabled": {
+          "name": "Enabled",
+          "description": "Set to true to show the button, false to hide it."
+        }
+      }
     }
   }
 }

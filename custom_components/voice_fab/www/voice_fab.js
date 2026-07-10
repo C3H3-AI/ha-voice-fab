@@ -216,7 +216,7 @@
         btn = document.createElement('button');
         btn.className = 'vf-btn';
         btn.id = 'vf-btn';
-        btn.title = '轻触: 语音助手 | 按住拖动: 移动 | 长按: 隐藏';
+        btn.title = 'Tap: Voice Assistant | Double-tap: Home | Drag: Move | Hold: Hide';
         btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><path fill="#fff" d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4zm0 2a2 2 0 0 1 2 2v6a2 2 0 0 1-4 0V5a2 2 0 0 1 2-2zm-7 7a1 1 0 0 0-1 1 8 8 0 0 0 7 7.93V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.07A8 8 0 0 0 20 11a1 1 0 1 0-2 0 6 6 0 0 1-12 0 1 1 0 0 0-1-1z"/></svg>';
         wrap.appendChild(btn);
         document.body.appendChild(wrap);
@@ -225,7 +225,7 @@
         restoreBtn = document.createElement('div');
         restoreBtn.className = 'vf-restore';
         restoreBtn.id = 'vf-restore';
-        restoreBtn.title = '恢复语音助手按钮';
+        restoreBtn.title = 'Restore voice button';
         restoreBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24"><path fill="#6366f1" d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4zm0 2a2 2 0 0 1 2 2v6a2 2 0 0 1-4 0V5a2 2 0 0 1 2-2zm-7 7a1 1 0 0 0-1 1 8 8 0 0 0 7 7.93V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.07A8 8 0 0 0 20 11a1 1 0 1 0-2 0 6 6 0 0 1-12 0 1 1 0 0 0-1-1z"/></svg>';
         document.body.appendChild(restoreBtn);
 

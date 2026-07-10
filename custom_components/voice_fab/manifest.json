@@ -2,11 +2,11 @@
   "domain": "voice_fab",
   "name": "Voice FAB",
   "codeowners": ["@C3H3-AI"],
-  "dependencies": ["frontend", "http"],
-  "requirements": [],
-  "version": "1.1.0",
   "config_flow": true,
+  "dependencies": ["frontend", "http"],
   "documentation": "https://github.com/C3H3-AI/ha-voice-fab",
+  "iot_class": "local_push",
   "issue_tracker": "https://github.com/C3H3-AI/ha-voice-fab/issues",
-  "iot_class": "local_push"
+  "requirements": [],
+  "version": "1.1.0"
 }

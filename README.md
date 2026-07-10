@@ -1,6 +1,7 @@
 # Voice FAB
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![GitHub Downloads](https://img.shields.io/github/downloads/C3H3-AI/ha-voice-fab/total.svg?style=flat&logo=github)](https://github.com/C3H3-AI/ha-voice-fab/releases)
 
 > **English** · [中文](#中文)
 

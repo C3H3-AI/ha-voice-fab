@@ -25,9 +25,7 @@
         .vf-wrap.no-transition{transition:none;}
         .vf-btn{
             width:56px;height:56px;border-radius:50%;
-            background:linear-gradient(135deg,#6366f1,#8b5cf6);
-            color:#fff;border:none;
-            box-shadow:0 4px 16px rgba(99,102,241,0.35);
+            background:rgba(128,128,128,0.05);border:1.5px solid rgba(128,128,128,0.6);box-shadow:none;
             cursor:pointer;font-size:24px;
             display:flex;align-items:center;justify-content:center;
             transition:transform 0.2s,opacity 0.3s;
@@ -41,16 +39,16 @@
         .vf-restore{
             position:fixed;top:60px;right:16px;z-index:999998;
             width:36px;height:36px;border-radius:50%;
-            background:rgba(99,102,241,0.15);border:1.5px solid rgba(99,102,241,0.3);
+            background:rgba(128,128,128,0.03);border:1.5px solid rgba(128,128,128,0.5);
             cursor:pointer;display:none;align-items:center;justify-content:center;
-            font-size:16px;transition:all 0.3s;
+            font-size:16px;transition:opacity 0.3s;
         }
         .vf-restore.show{display:flex;}
-        .vf-restore:hover{background:rgba(99,102,241,0.3);border-color:rgba(99,102,241,0.6);transform:scale(1.1);}
+        .vf-restore:hover{opacity:0.7;}
     `;
 
     let wrap, btn, restoreBtn;
-    let isHidden = localStorage.getItem(STORAGE_KEY_ENABLED) === 'false';
+    let isHidden = false;  // 每次刷新初始显示，隐藏状态不跨页面持久化
     let isAssistOpen = false;
 
     // 指针状态
@@ -59,6 +57,7 @@
     let isDragging = false;
     let hasMoved = false;
     let pressTimer = null;
+    let dblTapTimer = null;  // 双击等待计时
 
     function loadPos() {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEY_POS) || '{}'); }
@@ -110,7 +109,6 @@
 
     function hide(animate) {
         isHidden = true;
-        localStorage.setItem(STORAGE_KEY_ENABLED, 'false');
         if (animate !== false) {
             btn.classList.add('hiding');
             setTimeout(() => { btn.style.display = 'none'; btn.classList.remove('hiding'); }, 300);
@@ -122,7 +120,6 @@
 
     function show() {
         isHidden = false;
-        localStorage.setItem(STORAGE_KEY_ENABLED, 'true');
         btn.style.display = 'flex';
         btn.classList.add('showing');
         setTimeout(() => btn.classList.remove('showing'), 300);
@@ -178,6 +175,17 @@
         }
     }
 
+    function goHome() {
+        // 返回 HA 默认主页
+        var root = document.querySelector('home-assistant');
+        if (root) {
+            root.dispatchEvent(new CustomEvent('hass-action', {
+                bubbles: true, composed: true,
+                detail: { config: { tap_action: { action: 'navigate', navigation_path: '/' } }, action: 'tap' }
+            }));
+        }
+    }
+
     function onPointerUp(e) {
         if (e.pointerId !== pointerId) return;
 
@@ -190,10 +198,21 @@
             const rect = wrap.getBoundingClientRect();
             savePos(rect.left, rect.top);
         } else if (!hasMoved && !isHidden) {
-            // 轻触：打开 Assist + 上移一行
-            openAssistDialog();
-            isAssistOpen = true;
-            setTimeout(() => moveToAssistPos(), 100);
+            // 轻触：判断双击还是单击
+            if (dblTapTimer) {
+                // 第二次点击 → 双击回主页
+                clearTimeout(dblTapTimer); dblTapTimer = null;
+                goHome();
+            } else {
+                // 第一次点击 → 等待 300ms 判断双击
+                dblTapTimer = setTimeout(function(){
+                    dblTapTimer = null;
+                    // 单击 → 打开 Assist
+                    openAssistDialog();
+                    isAssistOpen = true;
+                    setTimeout(function(){ moveToAssistPos(); }, 100);
+                }, 300);
+            }
         }
 
         pointerId = null;
@@ -217,7 +236,7 @@
         btn.className = 'vf-btn';
         btn.id = 'vf-btn';
         btn.title = 'Tap: Voice Assistant | Double-tap: Home | Drag: Move | Hold: Hide';
-        btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><path fill="#fff" d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4zm0 2a2 2 0 0 1 2 2v6a2 2 0 0 1-4 0V5a2 2 0 0 1 2-2zm-7 7a1 1 0 0 0-1 1 8 8 0 0 0 7 7.93V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.07A8 8 0 0 0 20 11a1 1 0 1 0-2 0 6 6 0 0 1-12 0 1 1 0 0 0-1-1z"/></svg>';
+        btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="rgba(128,128,128,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M12,4A1,1 0 0,0 11,5V11A1,1 0 0,0 12,12A1,1 0 0,0 13,11V5A1,1 0 0,0 12,4M17,11C17,13.76 14.76,16 12,16C9.24,16 7,13.76 7,11H5C5,14.53 7.61,17.43 11,17.92V21H13V17.92C16.39,17.43 19,14.53 19,11H17Z"/></svg>';
         wrap.appendChild(btn);
         document.body.appendChild(wrap);
 
@@ -226,17 +245,11 @@
         restoreBtn.className = 'vf-restore';
         restoreBtn.id = 'vf-restore';
         restoreBtn.title = 'Restore voice button';
-        restoreBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24"><path fill="#6366f1" d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4zm0 2a2 2 0 0 1 2 2v6a2 2 0 0 1-4 0V5a2 2 0 0 1 2-2zm-7 7a1 1 0 0 0-1 1 8 8 0 0 0 7 7.93V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.07A8 8 0 0 0 20 11a1 1 0 1 0-2 0 6 6 0 0 1-12 0 1 1 0 0 0-1-1z"/></svg>';
+        restoreBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24"><path fill="none" stroke="rgba(128,128,128,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M12,4A1,1 0 0,0 11,5V11A1,1 0 0,0 12,12A1,1 0 0,0 13,11V5A1,1 0 0,0 12,4M17,11C17,13.76 14.76,16 12,16C9.24,16 7,13.76 7,11H5C5,14.53 7.61,17.43 11,17.92V21H13V17.92C16.39,17.43 19,14.53 19,11H17Z"/></svg>';
         document.body.appendChild(restoreBtn);
 
         // 设置默认位置
         setDefaultPos();
-
-        // 初始隐藏状态
-        if (isHidden) {
-            btn.style.display = 'none';
-            restoreBtn.classList.add('show');
-        }
 
         // 指针事件
         btn.addEventListener('pointerdown', onPointerDown);

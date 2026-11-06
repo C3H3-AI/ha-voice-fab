@@ -12,7 +12,7 @@ DOMAIN = "voice_fab"
 
 _LOGGER = logging.getLogger(__name__)
 
-_VFAB_URL = f"/api/{DOMAIN}/voice_fab.js?v=1.1.1"
+_VFAB_URL = f"/api/{DOMAIN}/voice_fab.js?v=1.2.0"
 _VFAB_DATA = "voice_fab_loaded"
 
 SERVICE_SET_FAB = "set_fab_enabled"
@@ -65,10 +65,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload: remove JS injection"""
-    if hass.data[DOMAIN].get(_VFAB_DATA):
-        frontend.remove_extra_js_url(hass, _VFAB_URL)
-        hass.data[DOMAIN].pop(_VFAB_DATA, None)
-        _LOGGER.info("Voice fab unloaded!")
+    """Unload: remove JS injection, keep the static-path guard.
+
+    The guard is deliberately kept: hass.data outlives a config entry, while aiohttp
+    keeps the route registered for the whole Home Assistant run. Clearing the guard
+    here would make the next setup re-register the very same URL and method, which
+    aiohttp rejects with RuntimeError — leaving the entry stuck in "Failed to set up"
+    until Home Assistant restarts. Removing the JS URL injection is unconditional
+    because add_extra_js_url is idempotent and a reload must not double-inject.
+    """
+    frontend.remove_extra_js_url(hass, _VFAB_URL)
     hass.data[DOMAIN].pop(entry.entry_id, None)
+    _LOGGER.info("Voice fab unloaded!")
     return True

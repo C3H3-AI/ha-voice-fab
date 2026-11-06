@@ -53,7 +53,7 @@ A floating voice assistant button for **all** Home Assistant pages. Works with t
 
 ### Requirements
 
-- Home Assistant 2024.1+
+- Home Assistant 2024.7+
 - Assist pipeline configured
 
 ---
@@ -102,12 +102,19 @@ A floating voice assistant button for **all** Home Assistant pages. Works with t
 
 ### 要求
 
-- Home Assistant 2024.1+
+- Home Assistant 2024.7+
 - 已配置 Assist 语音助手
 
 ---
 
 ## Changelog
+
+### v1.2.0
+
+- Fix: reloading the integration no longer leaves it stuck in "Failed to set up". The static path is now registered once per Home Assistant run and never re-registered, which is what made aiohttp raise `RuntimeError` on a duplicate route
+- Corrected the minimum Home Assistant version to 2024.7 — the code uses `StaticPathConfig`, `async_register_static_paths` and `remove_extra_js_url`, all introduced in 2024.7
+- `iot_class` is now `calculated`: this integration performs no IoT communication, and `integration_type` is declared as `service`
+- The JS cache-buster now matches the integration version
 
 ### v1.1.0
 
@@ -116,7 +123,7 @@ A floating voice assistant button for **all** Home Assistant pages. Works with t
 - Translations: English + Chinese (zh-Hans)
 - New style: transparent gray border + white line-art microphone icon
 - Double-tap to return to HA default dashboard
-- Removed localStorage persistence — button always shows on fresh load
+- Hide/show state persists across reloads: long-press the button to hide it, a small restore icon brings it back
 
 ### v1.0.0
 
